@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FitPlan">
+<title>FitPlan</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f0;color:#1a1a1a;min-height:100vh}
+.app{max-width:480px;margin:0 auto;background:#fff;min-height:100vh}
+.hdr{padding:14px 16px 10px;border-bottom:1px solid #eee;position:sticky;top:0;background:#fff;z-index:10}
+.logo{font-size:20px;font-weight:700}.logo span{color:#1D9E75}
+.hdate{font-size:11px;color:#bbb;margin-top:1px}
+.body{padding:12px}
+.tabs{display:flex;gap:2px;background:#f0efe8;border-radius:12px;padding:3px;margin-bottom:12px}
+.tab{flex:1;padding:7px 2px;border:none;background:transparent;color:#888;cursor:pointer;border-radius:9px;font-size:11px;font-weight:700;font-family:inherit}
+.tab.on{background:#fff;color:#1a1a1a;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.pane{display:none}.pane.on{display:block}
+.prow{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pbtn{flex:1;min-width:55px;padding:8px 4px;border:1.5px solid #eee;background:#fff;color:#888;cursor:pointer;border-radius:10px;font-size:12px;font-weight:600;font-family:inherit;text-align:center}
+.pbtn.on{border-color:currentColor}
+.srow{display:flex;gap:2px;background:#f0efe8;border-radius:8px;padding:3px;margin-bottom:10px}
+.sbtn{flex:1;padding:6px;border:none;background:transparent;color:#888;cursor:pointer;border-radius:6px;font-size:12px;font-weight:600;font-family:inherit}
+.sbtn.on{background:#fff;color:#1a1a1a;box-shadow:0 1px 2px rgba(0,0,0,.07)}
+.wrow{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.wlbl{font-size:12px;color:#bbb}
+.wbtns{display:flex;gap:3px}
+.wbtn{width:29px;height:29px;border:1.5px solid #eee;background:#fff;color:#888;cursor:pointer;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit}
+.wbtn.on{background:#e8f8f2;color:#0F6E56;border-color:#5DCAA5}
+.card{background:#fff;border:1px solid #eee;border-radius:14px;padding:13px 15px;margin-bottom:10px}
+.ct{font-size:11px;font-weight:700;color:#bbb;margin-bottom:9px;letter-spacing:.4px}
+/* MEALS */
+.meal{border-bottom:1px solid #f5f4ef;padding:0}
+.meal:last-child{border-bottom:none}
+.mhead{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0 8px;cursor:pointer}
+.mtime{font-size:11px;color:#bbb;margin-bottom:2px}
+.mname{font-size:14px;font-weight:700;margin-bottom:2px}
+.mfood{font-size:12px;color:#999}
+.mqty{font-size:11px;color:#ccc;margin-top:2px;font-style:italic}
+.mbtn{font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;border:1px solid #c0e8d0;background:#eaf8f2;color:#1D9E75;white-space:nowrap;flex-shrink:0;margin-left:8px;font-family:inherit}
+.mbtn.logged{border-color:#a8d4ef;background:#e8f4fb;color:#1a6fa8}
+.logarea{background:#f8f7f2;border-radius:10px;padding:12px;margin-bottom:8px}
+.logarea.has{background:#eaf8f2}
+.lrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ltlbl{font-size:11px;color:#bbb;font-weight:600;white-space:nowrap}
+.ltinput{padding:8px 10px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;font-size:14px;font-family:inherit;width:90px}
+.ltinput:focus{outline:none;border-color:#1D9E75}
+.lfinput{width:100%;padding:9px 12px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;font-size:14px;font-family:inherit;margin-bottom:8px}
+.lfinput:focus{outline:none;border-color:#1D9E75}
+.lhint{font-size:11px;color:#bbb;margin-bottom:8px}
+.lbtns{display:flex;gap:6px}
+.lbtn{flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.lbtn.save{background:#1D9E75;color:#fff}
+.lbtn.del{background:#fff0f0;color:#c0392b}
+.lbtn.cancel{background:#f0efe8;color:#888}
+/* WATER */
+.watercard{background:#f0f8ff;border:1px solid #d0e8f8;border-radius:12px;padding:10px 14px;margin-bottom:10px}
+.wtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.wtitle{font-size:11px;font-weight:700;color:#5b9bd5;letter-spacing:.4px}
+.wml{font-size:13px;font-weight:700;color:#1a6fa8}
+.wdrops{display:flex;gap:5px;margin-bottom:7px}
+.drop{width:24px;height:24px;border-radius:50%;border:1.5px solid #c0ddf5;background:#fff;cursor:pointer;flex-shrink:0;transition:background .1s,border-color .1s}
+.drop.on{background:#378ADD;border-color:#1a6fa8}
+.wprog{height:3px;background:#d0e8f8;border-radius:2px;overflow:hidden;margin-bottom:6px}
+.wfill{height:100%;background:#378ADD;border-radius:2px;transition:width .3s}
+.wbot{display:flex;justify-content:space-between;align-items:center}
+.wmsg{font-size:11px;color:#7fb3d3}
+.wact{display:flex;gap:5px}
+.wbtn2{width:28px;height:24px;border:1px solid #c0ddf5;border-radius:6px;background:#fff;color:#1a6fa8;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;padding:0;line-height:1}
+.wbtn2.p{background:#378ADD;color:#fff;border-color:#1a6fa8}
+/* WO */
+.worow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f4ef}
+.worow:last-child{border-bottom:none}
+.wodi{width:26px;height:26px;border-radius:8px;background:#f8f7f2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#777;flex-shrink:0}
+.wodi.hoy{background:#e8f4fb;color:#1a6fa8}
+.wonm{font-size:13px;font-weight:600;flex:1}
+.wosub{font-size:11px;color:#bbb}
+.tick{width:30px;height:30px;border-radius:50%;border:2px solid #ddd;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0;font-family:inherit}
+.tick.on{background:#1D9E75;border-color:#1D9E75;color:#fff}
+/* EXTRAS */
+.exitem{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f5f4ef}
+.exitem:last-child{border-bottom:none}
+.exname{font-size:13px;flex:1}
+.exdel{font-size:13px;color:#ddd;cursor:pointer;padding:2px 6px}
+.addex{width:100%;margin-top:8px;padding:10px;border:1.5px dashed #eee;border-radius:10px;background:#fff;color:#aaa;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+/* PILLS */
+.pills{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
+.pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px}
+.pill.cr{background:#E1F5EE;color:#085041}
+.pill.wh{background:#E6F1FB;color:#0C447C}
+.pill.d3{background:#FAEEDA;color:#633806}
+.pill.om{background:#FBEAF0;color:#72243E}
+.pill.mg{background:#EEEDFE;color:#3C3489}
+/* EXPORT */
+.expbtn{width:100%;padding:16px;border:none;background:#1a1a1a;color:#fff;border-radius:14px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px}
+.expbtn:active{background:#333}
+.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:100;display:flex;align-items:flex-end}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:6px}
+.modal-sub{font-size:13px;color:#888;margin-bottom:16px;line-height:1.5}
+.code-box{background:#f0efe8;border-radius:10px;padding:12px;font-family:monospace;font-size:11px;word-break:break-all;margin-bottom:14px;max-height:100px;overflow-y:auto;color:#555;line-height:1.4}
+.mbtn2{width:100%;padding:13px;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px}
+.mbtn2.p{background:#1D9E75;color:#fff}
+.mbtn2.s{background:#f0efe8;color:#888}
+/* DATE NAV */
+.datenav{display:flex;align-items:center;justify-content:space-between;background:#f8f7f2;border-radius:10px;padding:7px 10px;margin-bottom:10px}
+.datenav-btn{width:32px;height:32px;border:none;background:#fff;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;font-family:inherit;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.datenav-btn:disabled{color:#ccc;box-shadow:none}
+.datenav-center{text-align:center;flex:1;padding:0 8px}
+.datenav-date{font-size:13px;font-weight:700;color:#1a1a1a}
+.datenav-sub{font-size:10px;color:#bbb;margin-top:1px}
+
+/* SEMANA */
+.daystrip{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:10px}
+.dayb{padding:7px 2px;border:1.5px solid #eee;background:#fff;color:#888;cursor:pointer;border-radius:9px;font-size:11px;font-weight:700;font-family:inherit;text-align:center}
+.dayb.on{background:#e8f4fb;color:#1a6fa8;border-color:#a8d4ef}
+.dayb.hoy{border-color:#1D9E75}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="logo">Fit<span>Plan</span> <span style="font-size:11px;font-weight:400;color:#ccc">móvil</span></div>
+  <div class="hdate" id="hdate"></div>
+</div>
+<div class="body">
+<div class="tabs">
+  <button class="tab on" onclick="goT('hoy',this)">Hoy</button>
+  <button class="tab" onclick="goT('semana',this)">Semana</button>
+  <button class="tab" onclick="goT('exportar',this)">Exportar</button>
+</div>
+
+<!-- HOY -->
+<div id="p-hoy" class="pane on">
+  <div class="prow" id="h-pr"></div>
+  <!-- DATE NAV -->
+  <div class="datenav">
+    <button class="datenav-btn" id="prev-day" onclick="navDay(-1)">‹</button>
+    <div class="datenav-center">
+      <div class="datenav-date" id="nav-date-lbl">Hoy</div>
+      <div class="datenav-sub" id="nav-date-sub"></div>
+    </div>
+    <button class="datenav-btn" id="next-day" onclick="navDay(1)" disabled>›</button>
+  </div>
+  <div class="srow" id="h-sh">
+    <button class="sbtn on" id="sh-t" onclick="setSh('tarde')">Tarde</button>
+    <button class="sbtn" id="sh-n" onclick="setSh('noche')">Noche</button>
+    <button class="sbtn" id="sh-l" onclick="setSh('libre')">Libre</button>
+  </div>
+  <div class="wrow"><span class="wlbl">Semana</span><div class="wbtns" id="h-wb"></div></div>
+  <!-- AGUA -->
+  <div class="watercard">
+    <div class="wtop"><span class="wtitle">AGUA</span><span class="wml" id="w-ml">0<span style="font-size:10px;font-weight:400;color:#88b8d8"> / 2000ml</span></span></div>
+    <div class="wdrops">
+      <div class="drop" id="w0" onclick="setW(1)"></div>
+      <div class="drop" id="w1" onclick="setW(2)"></div>
+      <div class="drop" id="w2" onclick="setW(3)"></div>
+      <div class="drop" id="w3" onclick="setW(4)"></div>
+      <div class="drop" id="w4" onclick="setW(5)"></div>
+      <div class="drop" id="w5" onclick="setW(6)"></div>
+      <div class="drop" id="w6" onclick="setW(7)"></div>
+      <div class="drop" id="w7" onclick="setW(8)"></div>
+    </div>
+    <div class="wprog"><div class="wfill" id="w-bar" style="width:0%"></div></div>
+    <div class="wbot">
+      <span class="wmsg" id="w-msg">Empieza a beber</span>
+      <div class="wact">
+        <button class="wbtn2" onclick="setW(getW()-1)">−</button>
+        <button class="wbtn2 p" onclick="setW(getW()+1)">+</button>
+      </div>
+    </div>
+  </div>
+  <!-- COMIDAS -->
+  <div class="card">
+    <div class="ct">COMIDAS DE HOY</div>
+    <div id="h-meals"></div>
+    <div id="h-extras"></div>
+  </div>
+  <!-- EJERCICIO -->
+  <div class="card">
+    <div class="ct">EJERCICIO HOY</div>
+    <div id="h-wo"></div>
+  </div>
+</div>
+
+<!-- SEMANA -->
+<div id="p-semana" class="pane">
+  <div class="prow" id="s-pr"></div>
+  <div class="srow" id="s-sh">
+    <button class="sbtn on" id="ss-t" onclick="setSSh('tarde')">Tarde</button>
+    <button class="sbtn" id="ss-n" onclick="setSSh('noche')">Noche</button>
+    <button class="sbtn" id="ss-l" onclick="setSSh('libre')">Libre</button>
+  </div>
+  <div class="wrow"><span class="wlbl">Semana</span><div class="wbtns" id="s-wb"></div></div>
+  <div class="daystrip" id="s-days"></div>
+  <div class="card"><div class="ct" id="s-title">Selecciona un dia</div><div id="s-meals"></div></div>
+  <div class="card"><div class="ct">ENTRENOS SEMANA</div><div id="s-wo"></div></div>
+</div>
+
+<!-- EXPORTAR -->
+<div id="p-exportar" class="pane">
+  <div style="text-align:center;padding:1.5rem 0 1rem">
+    <div style="font-size:48px;margin-bottom:12px">📤</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px">Exportar al ordenador</div>
+    <div style="font-size:13px;color:#888;line-height:1.6;margin-bottom:20px">Pulsa el botón, copia el código y pégalo en FitPlan Desktop en el ordenador.</div>
+  </div>
+  <button class="expbtn" onclick="exportar()">Generar código de exportación</button>
+  <div style="text-align:center;font-size:12px;color:#bbb">El código contiene todo lo que has registrado hoy: comidas, agua, ejercicio y extras.</div>
+</div>
+</div>
+</div>
+
+<script>
+'use strict';
+/* ── DATOS ── */
+const FP={
+  jose:{name:'Jose',sex:'m',bg:'#e8f4fb',tc:'#1a6fa8',bmr:1799,schedType:'turno'},
+  noe:{name:'Noe',sex:'f',bg:'#e8f8f2',tc:'#0F6E56',bmr:1538,schedType:'gym2'}
+};
+const SLOTS=['iker','andrea'];
+const SLTCFG={iker:{bg:'#FAEEDA',tc:'#633806'},andrea:{bg:'#FBEAF0',tc:'#72243E'}};
+const DN=['L','M','X','J','V','S','D'];
+const DLN=['Lunes','Martes','Miercoles','Jueves','Viernes','Sabado','Domingo'];
+const WMSG=['Empieza a beber','Buen comienzo','Vas bien, 1L','A mitad','Mas de la mitad','Casi','Un vaso mas','Objetivo cumplido'];
+
+const M={
+jn:{1:[{h:'14:30',n:'Desayuno-comida',f:'Avena · huevos · leche · platano',q:'Avena 90g, 3 huevos, leche 300ml, platano'},{h:'18:30',n:'Cena pre-turno',f:'Arroz integral · pollo · verdura',q:'Arroz 150g, pollo 200g, verdura'},{h:'20:45',n:'Snack pre-turno',f:'Yogur · almendras · manzana',q:'Yogur 200g, almendras 30g, manzana'},{h:'02:00',n:'Media noche',f:'Tortilla · jamon · pan',q:'2 huevos, jamon 60g, 2 rebanadas'},{h:'06:30',n:'Recovery',f:'Whey · tostada · aguacate',q:'Whey 30g, leche, tostada, aguacate'}],2:[{h:'14:30',n:'Desayuno-comida',f:'Tortitas avena · huevos · frutos rojos',q:'Tortitas 100g, 3 huevos, frutos rojos'},{h:'18:30',n:'Cena pre-turno',f:'Pasta integral · salmon · ensalada',q:'Pasta 160g, salmon 200g, ensalada'},{h:'20:45',n:'Snack',f:'Queso · nueces · mandarina',q:'Queso 150g, nueces 25g, mandarina'},{h:'02:00',n:'Media noche',f:'Atun · pan · pimiento',q:'Atun 120g, 2 rebanadas, pimiento'},{h:'06:30',n:'Recovery',f:'Tortilla · pan · tomate',q:'3 huevos, 2 rebanadas, tomate'}],3:[{h:'14:30',n:'Desayuno-comida',f:'Muesli · leche · kiwi',q:'Muesli 100g, leche 300ml, 2 kiwis, almendras 30g'},{h:'18:30',n:'Cena pre-turno',f:'Lentejas · verdura · pan',q:'Lentejas 200g, verdura, pan'},{h:'20:45',n:'Snack',f:'Batido proteina · platano',q:'Whey 30g, leche 250ml, platano'},{h:'02:00',n:'Media noche',f:'Huevos · palitos cangrejo',q:'2 huevos, palitos 80g, pepino'},{h:'06:30',n:'Recovery',f:'Salmon ahumado · queso · tostada',q:'Salmon 100g, queso 80g, tostada'}],4:[{h:'14:30',n:'Desayuno-comida',f:'Yogur · granola · fresas',q:'Yogur 300g, granola 50g, fresas 150g'},{h:'18:30',n:'Cena pre-turno',f:'Pollo · patata · pimientos',q:'Pollo 220g, patata 150g, pimientos'},{h:'20:45',n:'Snack',f:'Jamon · melon · frutos secos',q:'Jamon 60g, melon 150g, frutos secos 20g'},{h:'02:00',n:'Media noche',f:'Tortilla vegetal · pan',q:'2 huevos, espinacas, 2 rebanadas'},{h:'06:30',n:'Recovery',f:'Whey · frutos rojos · avena',q:'Whey 30g, frutos rojos, avena 30g'}]},
+jt:{1:[{h:'08:30',n:'Desayuno',f:'Avena · leche · huevos · platano',q:'Avena 80g, leche 250ml, 2 huevos, platano'},{h:'11:00',n:'Media manana',f:'Manzana · almendras',q:'Manzana + almendras 30g'},{h:'12:30',n:'Comida',f:'Pasta integral · pollo · ensalada',q:'Pasta 150g, pollo 180g, ensalada'},{h:'17:30',n:'Snack turno',f:'Sandwich · pavo · naranja',q:'Sandwich, pavo 80g, naranja'},{h:'22:30',n:'Cena',f:'Salmon · verdura · arroz',q:'Salmon 200g, verdura, arroz 70g'}],2:[{h:'08:30',n:'Desayuno',f:'Tostadas · aguacate · huevos',q:'3 tostadas, aguacate, 2 huevos'},{h:'11:00',n:'Media manana',f:'Yogur · nueces',q:'Yogur 200g, nueces 25g'},{h:'12:30',n:'Comida',f:'Arroz · salmon · brocoli',q:'Arroz 150g, salmon 200g, brocoli'},{h:'17:30',n:'Snack',f:'Platano · mantequilla cacahuete',q:'Platano, 2 cucharadas MCA'},{h:'22:30',n:'Cena',f:'Merluza · esparragos · quinoa',q:'Merluza 200g, esparragos, quinoa 70g'}],3:[{h:'08:30',n:'Desayuno',f:'Porridge · frutos rojos',q:'Avena 80g, leche 300ml, frutos rojos'},{h:'11:00',n:'Media manana',f:'Queso · pera · almendras',q:'Queso 150g, pera, almendras 25g'},{h:'12:30',n:'Comida',f:'Garbanzos · espinacas · huevo',q:'Garbanzos 200g, espinacas, 2 huevos'},{h:'17:30',n:'Snack',f:'Barrita avena',q:'2 barritas avena 60g'},{h:'22:30',n:'Cena',f:'Dorada · judias · arroz',q:'Dorada 200g, judias 200g, arroz 60g'}],4:[{h:'08:30',n:'Desayuno',f:'Tortitas proteina · fruta',q:'Tortitas avena+whey 100g, 2 huevos'},{h:'11:00',n:'Media manana',f:'Batido verde',q:'Platano, espinacas, leche, whey 20g'},{h:'12:30',n:'Comida',f:'Pollo asado · patata · ensalada',q:'Pollo 200g, patata 150g, ensalada'},{h:'17:30',n:'Snack',f:'Atun · pan · tomate',q:'Atun 120g, 2 rebanadas, tomate'},{h:'22:30',n:'Cena',f:'Sepia · verdura · humus',q:'Sepia 200g, verdura, humus 60g'}]},
+jl:{1:[{h:'09:00',n:'Desayuno',f:'Avena · leche · huevos · platano',q:'Avena 80g, leche 250ml, 2 huevos, platano'},{h:'13:00',n:'Comida',f:'Pasta integral · proteina · ensalada',q:'Pasta 150g, pollo o atun 180g, ensalada'},{h:'16:30',n:'Merienda',f:'Fruta · frutos secos · yogur',q:'Manzana, almendras 30g, yogur griego'},{h:'20:00',n:'Cena',f:'Salmon · verdura · arroz',q:'Salmon 200g, verdura vapor, arroz 80g'}],2:[{h:'09:00',n:'Desayuno',f:'Tostadas · aguacate · huevos',q:'3 tostadas, aguacate, 2 huevos'},{h:'13:30',n:'Comida',f:'Arroz integral · salmon · brocoli',q:'Arroz 150g, salmon 200g, brocoli'},{h:'17:00',n:'Merienda',f:'Platano · mantequilla cacahuete',q:'Platano, 2 cucharadas MCA'},{h:'20:00',n:'Cena',f:'Merluza · esparragos · quinoa',q:'Merluza 200g, esparragos, quinoa 70g'}],3:[{h:'09:30',n:'Desayuno',f:'Porridge · frutos rojos',q:'Avena 80g, leche 300ml, frutos rojos'},{h:'13:00',n:'Comida',f:'Garbanzos · espinacas · huevo',q:'Garbanzos 200g, espinacas, 2 huevos'},{h:'17:00',n:'Merienda',f:'Queso · nueces · mandarina',q:'Queso 150g, nueces 25g, mandarina'},{h:'20:30',n:'Cena',f:'Dorada al vapor · judias',q:'Dorada 200g, judias 200g'}],4:[{h:'09:00',n:'Desayuno',f:'Tortitas proteina · fruta',q:'Tortitas avena+whey 100g, 2 huevos'},{h:'13:30',n:'Comida',f:'Pollo asado · patata · ensalada',q:'Pollo 220g, patata 150g, ensalada'},{h:'17:00',n:'Merienda',f:'Batido proteina · frutos rojos',q:'Whey 30g, leche 250ml, frutos rojos'},{h:'20:30',n:'Cena',f:'Sepia plancha · verdura · humus',q:'Sepia 200g, verdura, humus 60g'}]},
+ng:{1:[{h:'07:00',n:'Desayuno pre-gym',f:'Tostadas · aguacate · huevo',q:'2 tostadas, aguacate, 1 huevo'},{h:'10:30',n:'Pre-gym',f:'Platano · cafe',q:'1 platano, cafe'},{h:'13:30',n:'Post-gym',f:'Pechuga · arroz · verdura',q:'Pechuga 180g, arroz 120g, verdura'},{h:'19:00',n:'Merienda',f:'Yogur · frutos rojos · nueces',q:'Yogur 200g, frutos rojos, nueces 15g'},{h:'21:00',n:'Cena',f:'Merluza · ensalada · pan',q:'Merluza 180g, ensalada, 1 rebanada'}],2:[{h:'07:00',n:'Desayuno',f:'Avena · leche · nueces',q:'Avena 50g, leche 200ml, nueces 15g'},{h:'10:30',n:'Pre-gym',f:'Platano · datiles',q:'1 platano, 2 datiles'},{h:'13:30',n:'Post-gym',f:'Salmon · quinoa · esparragos',q:'Salmon 170g, quinoa 100g, esparragos'},{h:'19:00',n:'Merienda',f:'Queso · frutos del bosque',q:'Queso 150g, frutos del bosque'},{h:'21:00',n:'Cena',f:'Pavo · brocoli · pan',q:'Pavo 160g, brocoli, 1 rebanada'}],3:[{h:'07:00',n:'Desayuno',f:'Yogur · granola · kiwi',q:'Yogur 200g, granola 30g, 2 kiwis'},{h:'10:30',n:'Pre-gym',f:'Manzana · almendras',q:'1 manzana, almendras 15g'},{h:'13:30',n:'Post-gym',f:'Huevos · espinacas · patata',q:'3 huevos, espinacas, patata 120g'},{h:'19:00',n:'Merienda',f:'Batido proteina',q:'Whey 20g, leche, frutos rojos'},{h:'21:00',n:'Cena',f:'Dorada · judias',q:'Dorada 170g, judias 200g'}],4:[{h:'07:00',n:'Desayuno',f:'Tortitas proteina · fresas',q:'Tortitas 70g, fresas 100g'},{h:'10:30',n:'Pre-gym',f:'Platano',q:'1 platano, cafe'},{h:'13:30',n:'Post-gym',f:'Pollo · lentejas · pimiento',q:'Pollo 160g, lentejas 120g, pimiento'},{h:'19:00',n:'Merienda',f:'Yogur · almendras',q:'Yogur 200g, almendras 15g, manzana'},{h:'21:00',n:'Cena',f:'Atun · ensalada',q:'Atun 120g, ensalada, 1 rebanada'}]},
+nn:{1:[{h:'07:30',n:'Desayuno',f:'Avena · leche · fruta',q:'Avena 50g, leche 200ml, fruta'},{h:'10:30',n:'Media manana',f:'Fruta · almendras',q:'Fruta + almendras 20g'},{h:'14:00',n:'Comida',f:'Legumbres o proteina · verdura',q:'Legumbres 200g o pollo 150g, verdura'},{h:'17:30',n:'Merienda',f:'Yogur · frutos del bosque',q:'Yogur 200g, frutos rojos, nueces 15g'},{h:'20:30',n:'Cena',f:'Verdura · proteina',q:'Verdura, 2 huevos o pescado 150g'}],2:[{h:'07:30',n:'Desayuno',f:'Tostadas · tomate · AOVE',q:'2 tostadas, tomate, AOVE'},{h:'10:30',n:'Media manana',f:'Yogur · pera',q:'Yogur 150g, pera'},{h:'14:00',n:'Comida',f:'Merluza · ensalada · arroz',q:'Merluza 170g, ensalada, arroz 80g'},{h:'17:30',n:'Merienda',f:'Queso · nueces · manzana',q:'Queso 100g, nueces 15g, manzana'},{h:'20:30',n:'Cena',f:'Sopa · huevo · pan',q:'Sopa 300ml, 1 huevo, rebanada'}],3:[{h:'07:30',n:'Desayuno',f:'Porridge · frutos rojos',q:'Avena 50g, leche, frutos rojos'},{h:'10:30',n:'Media manana',f:'Batido proteina',q:'Whey 20g, leche, platano'},{h:'14:00',n:'Comida',f:'Garbanzos · espinacas',q:'Garbanzos 180g, espinacas'},{h:'17:30',n:'Merienda',f:'Frutos secos · platano',q:'Frutos secos 25g, platano'},{h:'20:30',n:'Cena',f:'Salmon · esparragos',q:'Salmon 160g, esparragos'}],4:[{h:'07:30',n:'Desayuno',f:'Muesli · leche · kiwi',q:'Muesli 50g, leche, 2 kiwis'},{h:'10:30',n:'Media manana',f:'Tortita proteina',q:'Tortita avena-huevo 60g'},{h:'14:00',n:'Comida',f:'Pollo · ensalada · patata',q:'Pollo 160g, ensalada, patata 100g'},{h:'17:30',n:'Merienda',f:'Yogur · granola · fresas',q:'Yogur 200g, granola 20g, fresas'},{h:'20:30',n:'Cena',f:'Atun · tomate · pepino · pan',q:'Atun 120g, tomate, pepino, rebanada'}]}
+};
+
+const WOL={gs:'Pesas tren superior',gi:'Pesas tren inferior',wa:'Caminata activa',bi:'Bicicleta',pa:'Padel',ho:'Entrenamiento casa',hi:'HIIT cardio',yo:'Yoga',gap:'Clase GAP',bp:'Body Pump',sp:'Spinning',ng:'Gym circuito',nw:'Caminata tarde',re:'Descanso activo'};
+const WPN=[{d:'L',w:'gs'},{d:'M',w:'wa'},{d:'X',w:'gi'},{d:'J',w:'ho'},{d:'V',w:'pa'},{d:'S',w:'bi'},{d:'D',w:null}];
+const WPT=[{d:'L',w:'gs'},{d:'M',w:'wa'},{d:'X',w:'gi'},{d:'J',w:'ho'},{d:'V',w:'pa'},{d:'S',w:'bi'},{d:'D',w:null}];
+const WPL=[{d:'L',w:'gs'},{d:'M',w:'wa'},{d:'X',w:'gi'},{d:'J',w:'pa'},{d:'V',w:'bi'},{d:'S',w:'ho'},{d:'D',w:null}];
+const WP2=[{d:'L',w:'nw'},{d:'M',w:'ng'},{d:'X',w:'nw'},{d:'J',w:'ng'},{d:'V',w:'ho'},{d:'S',w:'bi'},{d:'D',w:null}];
+const WPG=[{d:'L',w:'gs'},{d:'M',w:'wa'},{d:'X',w:'gi'},{d:'J',w:'pa'},{d:'V',w:'ho'},{d:'S',w:'bi'},{d:'D',w:null}];
+
+/* ── ESTADO ── */
+let USR = Object.assign({},FP);
+let hP='jose', hSh='tarde', hW=1;
+let viewDate=null; // null = today, otherwise 'YYYY-M-D' string
+let sP='jose', sSh='tarde', sW=1;
+let cDay=0, openLog=null, addingExtra=false;
+let LOG={}, EXTRAS={}, WATER={}, WODONE={}, WOOVR={};
+
+/* ── HELPERS ── */
+function todayStr(p,sh){
+  const d=new Date();
+  if(USR[p]&&USR[p].sex==='m'&&sh==='noche'&&d.getHours()<10){
+    const y=new Date(d-86400000);
+    return y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();
+  }
+  return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+}
+function dateFor(p,sh){return viewDate||todayStr(p,sh);}
+function navDay(dir){
+  const current=viewDate||todayStr(hP,hSh);
+  const parts=current.split('-').map(Number);
+  const d=new Date(parts[0],parts[1]-1,parts[2]);
+  d.setDate(d.getDate()+dir);
+  const today=todayStr(hP,hSh);
+  const newStr=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+  viewDate=(newStr===today)?null:newStr;
+  updateDateNav();
+  rHoy();
+}
+function updateDateNav(){
+  const today=todayStr(hP,hSh);
+  const cur=viewDate||today;
+  const parts=cur.split('-').map(Number);
+  const d=new Date(parts[0],parts[1]-1,parts[2]);
+  const days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  const months=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const isToday=!viewDate;
+  const lbl=document.getElementById('nav-date-lbl');
+  const sub=document.getElementById('nav-date-sub');
+  const nextBtn=document.getElementById('next-day');
+  if(lbl)lbl.textContent=isToday?'Hoy':days[d.getDay()]+' '+d.getDate()+' '+months[d.getMonth()];
+  if(sub)sub.textContent=isToday?d.toLocaleDateString('es-ES',{day:'numeric',month:'long'}):(viewDate||'');
+  if(nextBtn)nextBtn.disabled=isToday;
+}
+function lk(i){return hP+'_'+dateFor(hP,hSh)+'_'+i;}
+function ek(){return hP+'_'+dateFor(hP,hSh);}
+function wk(){return hP+'_'+dateFor(hP,hSh);}
+function getMK(p,sh,di){
+  const u=USR[p];if(!u)return'jt';
+  if(u.sex==='m'){if(sh==='noche')return'jn';if(sh==='libre')return'jl';return'jt';}
+  return(di===1||di===3)?'ng':'nn';
+}
+function getPlan(p,sh){
+  const u=USR[p];if(!u)return WPT;
+  let base;
+  if(u.sex==='m'){if(sh==='noche')base=WPN;else if(sh==='libre')base=WPL;else base=WPT;}
+  else if(u.schedType==='gym2')base=WP2;
+  else base=WPG;
+  return base.map((d,i)=>{
+    const ov=WOOVR[p+'_'+i];
+    return ov!==undefined?Object.assign({},d,{w:ov||null}):d;
+  });
+}
+function spills(i,gym){
+  const a=[];
+  if(i===0)a.push({c:'d3',t:'D3'});
+  if(i===2){a.push({c:'cr',t:'Creatina'});a.push({c:'om',t:'Omega-3'});}
+  if(i===2&&gym)a.push({c:'wh',t:'Whey'});
+  if(i===4)a.push({c:'mg',t:'Magnesio'});
+  return a;
+}
+
+/* ── PERSISTENCIA ── */
+function save(){
+  try{
+    localStorage.setItem('fpm_log',JSON.stringify(LOG));
+    localStorage.setItem('fpm_extras',JSON.stringify(EXTRAS));
+    localStorage.setItem('fpm_water',JSON.stringify(WATER));
+    localStorage.setItem('fpm_wodone',JSON.stringify(WODONE));
+    localStorage.setItem('fpm_woovr',JSON.stringify(WOOVR));
+    const extra=Object.fromEntries(Object.entries(USR).filter(([k])=>!FP[k]));
+    if(Object.keys(extra).length)localStorage.setItem('fpm_usr',JSON.stringify(extra));
+  }catch(e){}
+}
+function load(){
+  try{
+    const l=localStorage.getItem('fpm_log');if(l)Object.assign(LOG,JSON.parse(l));
+    const ex=localStorage.getItem('fpm_extras');if(ex)Object.assign(EXTRAS,JSON.parse(ex));
+    const wa=localStorage.getItem('fpm_water');if(wa)Object.assign(WATER,JSON.parse(wa));
+    const wd=localStorage.getItem('fpm_wodone');if(wd)Object.assign(WODONE,JSON.parse(wd));
+    const wo=localStorage.getItem('fpm_woovr');if(wo)Object.assign(WOOVR,JSON.parse(wo));
+    const us=localStorage.getItem('fpm_usr');if(us)Object.assign(USR,JSON.parse(us));
+  }catch(e){}
+}
+
+/* ── NAVEGACION ── */
+function goT(id,btn){
+  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('p-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='hoy')rHoy();
+  else if(id==='semana')rSem();
+}
+
+/* ── PERSON ROW ── */
+function prow(id,cur,fn){
+  const el=document.getElementById(id);if(!el)return;
+  let h='';
+  Object.keys(USR).forEach(k=>{
+    const p=USR[k];const on=k===cur;
+    h+='<button class="pbtn'+(on?' on':'')+'" onclick="'+fn+'(\''+k+'\')" style="color:'+(on?p.tc:'#888')+';border-color:'+(on?p.tc:'#eee')+';background:'+(on?p.bg:'#fff')+'">'+p.name+'</button>';
+  });
+  el.innerHTML=h;
+}
+
+/* ── SEMANA BTNS ── */
+function wbtns(id,cur,fn){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=[1,2,3,4].map(function(n){return'<button class="wbtn'+(n===cur?' on':'')+'" onclick="'+fn+'('+n+')">'+n+'</button>';}).join('');
+}
+
+/* ── AGUA ── */
+function getW(){return WATER[wk()]||0;}
+function setW(n){
+  n=Math.max(0,Math.min(8,n));
+  WATER[wk()]=n;save();rWater();
+}
+function rWater(){
+  const g=getW(),ml=g*250,pct=Math.min(100,Math.round(g/8*100));
+  const mlEl=document.getElementById('w-ml');
+  if(mlEl)mlEl.firstChild.textContent=ml;
+  const bar=document.getElementById('w-bar');
+  if(bar)bar.style.width=pct+'%';
+  const msg=document.getElementById('w-msg');
+  if(msg)msg.textContent=WMSG[Math.min(g,WMSG.length-1)];
+  for(let i=0;i<8;i++){
+    const el=document.getElementById('w'+i);if(!el)continue;
+    const on=i<g;
+    el.style.background=on?'#378ADD':'#fff';
+    el.style.borderColor=on?'#1a6fa8':'#c0ddf5';
+    el.onclick=(function(idx,filled){return function(){setW(filled?idx:idx+1);};})(i,on);
+  }
+}
+
+/* ── HOY ── */
+function setSh(s){
+  hSh=s;
+  ['t','n','l'].forEach(function(x){document.getElementById('sh-'+x).classList.remove('on');});
+  document.getElementById('sh-'+s[0]).classList.add('on');
+  rHoy();
+}
+function setHP(k){
+  hP=k;prow('h-pr',k,'setHP');
+  const u=USR[k];
+  document.getElementById('h-sh').style.display=(u&&u.sex==='m')?'flex':'none';
+  rHoy();
+}
+function setHW(w){hW=w;wbtns('h-wb',w,'setHW');rHoy();}
+
+function rHoy(){
+  updateDateNav();
+  prow('h-pr',hP,'setHP');
+  const p=USR[hP];
+  if(!p){
+    document.getElementById('h-meals').innerHTML='<div style="color:#bbb;font-size:13px;padding:8px 0">Selecciona un perfil</div>';
+    return;
+  }
+  document.getElementById('h-sh').style.display=p.sex==='m'?'flex':'none';
+  wbtns('h-wb',hW,'setHW');
+  const d=new Date(),di=(d.getDay()+6)%7;
+  const isM=p.sex==='m';
+  const gym=!isM&&(di===1||di===3);
+  const mk=getMK(hP,hSh,di);
+  const meals=(M[mk]||M.jt)[hW]||[];
+  // Render meals
+  const mealsHTML=meals.map(function(meal,i){
+    const key=lk(i);
+    const log=LOG[key];
+    const isOpen=openLog===key;
+    const sp=spills(i,gym);
+    const spH=sp.length?'<div class="pills">'+sp.map(function(s){return'<span class="pill '+s.c+'">'+s.t+'</span>';}).join('')+'</div>':'';
+    const loggedBadge=log?'<span style="font-size:10px;color:#378ADD;margin-left:5px">✓</span>':'';
+    let logH='';
+    if(isOpen){
+      logH='<div class="logarea'+(log?' has':'')+'">'+
+        '<div class="lrow"><span class="ltlbl">Hora real:</span>'+
+        '<input class="ltinput" id="lt'+i+'" type="time" value="'+(log&&log.time?log.time:meal.h)+'"></div>'+
+        '<input class="lfinput" id="lf'+i+'" type="text" placeholder="Escribe exactamente lo que has comido..." value="'+(log?log.food.replace(/"/g,'&quot;'):'')+'">'+
+        '<div class="lhint">Escribe con detalle: cantidad, forma de cocinado, extras... El ordenador calculara las kcal.</div>'+
+        '<div class="lbtns">'+
+        '<button class="lbtn save" onclick="savLog('+i+')">Guardar</button>'+
+        (log?'<button class="lbtn del" onclick="delLog('+i+')">Borrar</button>':'')+
+        '<button class="lbtn cancel" onclick="openLog=null;rHoy()">Cancelar</button>'+
+        '</div></div>';
+    }
+    return '<div class="meal">'+
+      '<div class="mhead" onclick="openLog=openLog===\''+key+'\'?null:\''+key+'\';rHoy()">'+
+      '<div style="flex:1;min-width:0">'+
+      '<div class="mtime">'+(log&&log.time?log.time+' h (real)':meal.h+' h')+'</div>'+
+      '<div class="mname">'+meal.n+loggedBadge+'</div>'+
+      '<div class="mfood">'+meal.f+'</div>'+
+      '<div class="mqty">'+(log?log.food:meal.q)+'</div>'+
+      spH+'</div>'+
+      '<button class="mbtn'+(log?' logged':'')+'" onclick="openLog=openLog===\''+key+'\'?null:\''+key+'\';rHoy()">'+
+      (isOpen?'Cerrar':log?'Editar':'Anotar')+
+      '</button></div>'+logH+'</div>';
+  }).join('');
+  document.getElementById('h-meals').innerHTML=mealsHTML;
+  // Extras
+  rExtras();
+  // Agua
+  rWater();
+  // Ejercicio
+  const plan=getPlan(hP,hSh);
+  const tp=plan[di];
+  const wok=tp&&tp.w?tp.w:null;
+  const wonm=wok?WOL[wok]:'Descanso activo';
+  const doneKey=hP+'_'+dateFor(hP,hSh);
+  const done=WODONE[doneKey]||false;
+  document.getElementById('h-wo').innerHTML=
+    '<div style="display:flex;align-items:center;gap:10px;padding:4px 0">'+
+    '<div style="flex:1"><div style="font-size:14px;font-weight:700">'+wonm+'</div>'+
+    '<div style="font-size:12px;color:#bbb;margin-top:2px">'+(done?'Completado — bien hecho':'Pulsa el circulo cuando lo hayas hecho')+'</div></div>'+
+    '<button class="tick'+(done?' on':'')+'" onclick="togDone(\''+doneKey+'\')">'+(done?'✓':'○')+'</button></div>';
+}
+
+function savLog(i){
+  const food=document.getElementById('lf'+i).value.trim();
+  const time=document.getElementById('lt'+i).value;
+  const key=lk(i);
+  if(!food){delete LOG[key];}
+  else{LOG[key]={food:food,time:time};}
+  openLog=null;save();rHoy();
+}
+function delLog(i){delete LOG[lk(i)];openLog=null;save();rHoy();}
+function togDone(k){WODONE[k]=!WODONE[k];save();rHoy();}
+
+/* ── EXTRAS ── */
+function rExtras(){
+  const exs=EXTRAS[ek()]||[];
+  let h='<div style="border-top:1px solid #f5f4ef;margin-top:8px;padding-top:10px">'+
+    '<div style="font-size:11px;font-weight:700;color:#e67e22;letter-spacing:.3px;margin-bottom:8px">EXTRAS DEL DIA'+(exs.length?' ('+exs.length+')':'')+'</div>';
+  if(exs.length){
+    h+=exs.map(function(e){
+      return '<div class="exitem"><span class="exname">'+e.name+'</span>'+
+        '<span class="exdel" onclick="delEx('+e.id+')">✕</span></div>';
+    }).join('');
+  }
+  if(addingExtra){
+    h+='<div style="margin-top:8px">'+
+      '<input class="lfinput" id="ex-name" type="text" placeholder="Ej: bolsa de patatas fritas, cerveza, helado...">'+
+      '<div style="display:flex;gap:6px;margin-top:6px">'+
+      '<button style="flex:1;padding:10px;border:none;background:#e67e22;color:#fff;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer" onclick="savEx()">Guardar</button>'+
+      '<button style="padding:10px 14px;border:1px solid #eee;border-radius:8px;background:#fff;font-size:12px;color:#888;font-family:inherit;cursor:pointer" onclick="addingExtra=false;rExtras()">Cancelar</button>'+
+      '</div></div>';
+  }else{
+    h+='<button class="addex" onclick="addingExtra=true;rExtras()">+ Anadir capricho o extra</button>';
+  }
+  h+='</div>';
+  document.getElementById('h-extras').innerHTML=h;
+}
+function savEx(){
+  const name=document.getElementById('ex-name').value.trim();
+  if(!name)return;
+  const key=ek();
+  if(!EXTRAS[key])EXTRAS[key]=[];
+  EXTRAS[key].push({id:Date.now(),name:name});
+  addingExtra=false;save();rHoy();
+}
+function delEx(id){
+  const key=ek();
+  EXTRAS[key]=(EXTRAS[key]||[]).filter(function(e){return e.id!==id;});
+  save();rHoy();
+}
+
+/* ── SEMANA ── */
+function setSSh(s){
+  sSh=s;
+  ['t','n','l'].forEach(function(x){document.getElementById('ss-'+x).classList.remove('on');});
+  document.getElementById('ss-'+s[0]).classList.add('on');
+  rSem();
+}
+function setSP(k){sP=k;prow('s-pr',k,'setSP');const u=USR[k];document.getElementById('s-sh').style.display=(u&&u.sex==='m')?'flex':'none';rSem();}
+function setSW(w){sW=w;wbtns('s-wb',w,'setSW');rSem();}
+function selDay(di){cDay=di;rSem();}
+
+function rSem(){
+  prow('s-pr',sP,'setSP');
+  const u=USR[sP];if(!u)return;
+  document.getElementById('s-sh').style.display=u.sex==='m'?'flex':'none';
+  wbtns('s-wb',sW,'setSW');
+  const pl=getPlan(sP,sSh);
+  const td=new Date(),tdi=(td.getDay()+6)%7;
+  document.getElementById('s-days').innerHTML=DN.map(function(d,i){
+    return '<button class="dayb'+(i===cDay?' on':'')+(i===tdi?' hoy':'')+'" onclick="selDay('+i+')"><div>'+d+'</div></button>';
+  }).join('');
+  const mk=getMK(sP,sSh,cDay);
+  const meals=(M[mk]||M.jt)[sW]||[];
+  const isM=u.sex==='m';
+  document.getElementById('s-title').textContent=DLN[cDay]+(tdi===cDay?' (hoy)':'');
+  document.getElementById('s-meals').innerHTML=meals.map(function(meal){
+    const qty=isM?meal.q:meal.q;if(!qty)return'';
+    return '<div class="meal" style="padding:9px 0">'+
+      '<div class="mtime">'+meal.h+' h</div>'+
+      '<div class="mname">'+meal.n+'</div>'+
+      '<div class="mfood">'+meal.f+'</div>'+
+      '<div class="mqty">'+qty+'</div></div>';
+  }).join('');
+  document.getElementById('s-wo').innerHTML=pl.map(function(day,i){
+    const wonm=day.w?WOL[day.w]:'Descanso activo';
+    return '<div class="worow">'+
+      '<div class="wodi'+(i===tdi?' hoy':'')+'">'+day.d+'</div>'+
+      '<div><div class="wonm">'+wonm+'</div></div></div>';
+  }).join('');
+}
+
+/* ── EXPORTAR ── */
+function exportar(){
+  const d=new Date(),di=(d.getDay()+6)%7;
+  const mk=getMK(hP,hSh,di);
+  const meals=(M[mk]||M.jt)[hW]||[];
+  const plan=getPlan(hP,hSh);
+  const logsHoy={};
+  meals.forEach(function(meal,i){const key=lk(i);if(LOG[key])logsHoy[i]=LOG[key];});
+  const data={
+    v:2,
+    p:hP,
+    sh:hSh,
+    w:hW,
+    date:dateFor(hP,hSh),
+    isToday:!viewDate,
+    mk:mk,
+    plan:meals.map(function(m){return{h:m.h,n:m.n,f:m.f,q:m.q};}),
+    logs:logsHoy,
+    water:WATER[wk()]||0,
+    wodone:WODONE[hP+'_'+dateFor(hP,hSh)]||false,
+    woPlan:plan[di]?plan[di].w:null,
+    extras:EXTRAS[ek()]||[],
+    pname:(USR[hP]&&USR[hP].name)||hP,
+    pbmr:(USR[hP]&&USR[hP].bmr)||1799,
+    psex:(USR[hP]&&USR[hP].sex)||'m'
+  };
+  let code;
+  try{code='FP2:'+btoa(unescape(encodeURIComponent(JSON.stringify(data))));}
+  catch(e){code='FP2:'+btoa(JSON.stringify(data));}
+  // Show modal
+  const loggedCount=Object.keys(logsHoy).length;
+  const water=data.water;
+  const done=data.wodone;
+  document.body.insertAdjacentHTML('beforeend',
+    '<div class="modal-bg" id="exp-modal" onclick="if(event.target===this)cerrarModal()">'+
+    '<div class="modal">'+
+    '<div class="modal-title">Codigo listo para copiar</div>'+
+    '<div class="modal-sub">'+
+      'Comidas anotadas: <strong>'+loggedCount+' / '+meals.length+'</strong> · Agua: <strong>'+water*250+'ml</strong> · Ejercicio: <strong>'+(done?'hecho':'sin marcar')+'</strong>'+
+    '</div>'+
+    '<div class="code-box" id="exp-code">'+code+'</div>'+
+    '<button class="mbtn2 p" onclick="copiarCodigo()">Copiar codigo</button>'+
+    '<button class="mbtn2 s" onclick="cerrarModal()">Cerrar</button>'+
+    '</div></div>'
+  );
+}
+function copiarCodigo(){
+  const code=document.getElementById('exp-code').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(code).then(function(){
+      const btn=document.querySelector('.mbtn2.p');
+      if(btn){btn.textContent='Copiado';btn.style.background='#0F6E56';}
+    });
+  }else{
+    const ta=document.createElement('textarea');
+    ta.value=code;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    const btn=document.querySelector('.mbtn2.p');
+    if(btn){btn.textContent='Copiado';btn.style.background='#0F6E56';}
+  }
+}
+function cerrarModal(){const m=document.getElementById('exp-modal');if(m)m.remove();}
+
+/* ── INIT ── */
+load();
+(function(){
+  const d=new Date();
+  const days=['Domingo','Lunes','Martes','Miercoles','Jueves','Viernes','Sabado'];
+  document.getElementById('hdate').textContent=days[d.getDay()]+' '+d.toLocaleDateString('es-ES',{day:'numeric',month:'long'});
+  cDay=(d.getDay()+6)%7;
+})();
+prow('h-pr',hP,'setHP');
+updateDateNav();
+const _u=USR[hP];
+document.getElementById('h-sh').style.display=(_u&&_u.sex==='m')?'flex':'none';
+wbtns('h-wb',hW,'setHW');
+rHoy();
+</script>
+</body>
+</html>
